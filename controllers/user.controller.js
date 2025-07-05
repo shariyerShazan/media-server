@@ -20,6 +20,24 @@ export const register = async (req , res)=>{
                 success: false
             })
         }
+        if (password.length < 6) {
+            return res.status(400).json({
+              message: "Password must be at least 6 characters long",
+              success: false,
+            });
+          }
+          if (!/[a-zA-Z]/.test(password)) {
+            return res.status(400).json({
+              message: "Password must contain at least one letter",
+              success: false,
+            });
+          }
+          if (!/[0-9]/.test(password)) {
+            return res.status(400).json({
+              message: "Password must contain at least one number",
+              success: false,
+            });
+          }
         const hashPassword = await bcrypt.hash(password , 10)
            await User.create({
             fullName ,
@@ -52,7 +70,7 @@ export const login = async (req , res)=>{
                 success: false
             })
         }
-        const comparePassword = await bcrypt.compare(user.password , password)
+        const comparePassword = await bcrypt.compare(password , user.password )
         if(!comparePassword){
             return res.status(404).json({
                 message: "Password is incorrect",
@@ -86,7 +104,7 @@ export const logout = async (req , res)=>{
 export const getProfile = async (req , res)=>{
     try {
         const userId = req.params.id
-        const user = await User.findById(userId)
+        const user = await User.findById(userId).select("-password")
         if(!user){
             return res.status(404).json({
                 message : "User not found",
@@ -146,7 +164,53 @@ export const editProfile = async (req , res)=>{
     }
 }
 
-
+export const changePassword = async (req, res)=>{
+    try {
+        const userId = req.userId
+        const user = await User.findById(userId)
+        const {oldPassword , newPassword} = req.body
+        if(!oldPassword || !newPassword){
+            return res.status(400).json({
+                message : "Something is missing",
+                success: false
+            })
+        }
+        const matchPassword = await bcrypt.compare( oldPassword , user.password )
+        if(!matchPassword){
+            return res.status(401).json({
+                message : "Wrong old password" ,
+                success: false
+            })
+        }
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+              message: "Password must be at least 6 characters long",
+              success: false,
+            });
+          }
+          if (!/[a-zA-Z]/.test(newPassword)) {
+            return res.status(400).json({
+              message: "Password must contain at least one letter",
+              success: false,
+            });
+          }
+          if (!/[0-9]/.test(newPassword)) {
+            return res.status(400).json({
+              message: "Password must contain at least one number",
+              success: false,
+            });
+          }
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            user.password = hashedPassword
+            await user.save()
+            return res.status(200).json({
+                message : "Password change succefully",
+                success: true
+            })
+    } catch (error) {
+      console.log(error)  
+    }
+}
 
 export const getOthersUsers = async (req , res)=>{
        try {
