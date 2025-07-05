@@ -5,7 +5,7 @@ const app = express()
 import cookieParser from "cookie-parser"
 import cors from "cors"
 import { connectDB } from "./utils/db.js"
-
+import userRoutes from "./routes/user.route.js"
 
 // connect db
 connectDB()
@@ -26,9 +26,10 @@ app.get("/" , (req , res)=>{
         success: true
     })
 })
+app.use("/api/users" , userRoutes)
 
 
 const PORT = process.env.PORT || 6001
 app.listen(PORT , ()=>{
-    console.log(`your server is runnig at http://localhost:${PORT}`)
+    console.log(`your server is runnig at http://localhost:${PORT}`) 
 })

@@ -16,24 +16,22 @@ const userSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String,
-    required: true,
   },
   bio: {
     type: String,
-    required: true,
   },
   gender: {
     type: String,
-    required: true,
     enum: ["male", "female"],
+    required : true
   },
-  followes: [
+  followers: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   ],
-  following: [
+  followings: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
