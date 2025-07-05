@@ -2,7 +2,7 @@ import sharp from "sharp"
 import cloudinary from "../utils/cloudinary.js"
 import { Post } from "../models/post.model.js"
 import { User } from "../models/user.model.js"
-import { Comment } from "../models/comment.model"
+import { Comment } from "../models/comment.model.js"
 
 export const addNewPost = async (req , res)=>{
     try {
@@ -16,7 +16,7 @@ export const addNewPost = async (req , res)=>{
               success: false,
             });
           }          
-        if(!postImage){
+        if(!postImage){ 
             return res.status(400).json({
         message : "Image is required",
         success: false
