@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import { connectDB } from "./utils/db.js"
 import userRoutes from "./routes/user.route.js"
+import postRoutes from "./routes/post.route.js"
+import messageRoutes from "./routes/message.route.js"
 
 // connect db
 connectDB()
@@ -27,6 +29,8 @@ app.get("/" , (req , res)=>{
     })
 })
 app.use("/api/users" , userRoutes)
+app.use("/api/posts" , postRoutes)
+app.use("/api/messages" , messageRoutes)
 
 
 const PORT = process.env.PORT || 6001

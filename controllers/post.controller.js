@@ -90,7 +90,7 @@ export const getUserPosts = async (req , res)=>{
 export const likeUnlike = async (req, res)=>{
     try {
         const userId = req.userId
-        const tragetPostId= req.params.id
+        const tragetPostId= req.params.postId
         const user = await User.findById(userId)
         const targetPost = await Post.findById(tragetPostId)
         if(!user || !targetPost){
@@ -126,7 +126,7 @@ export const likeUnlike = async (req, res)=>{
 export const addComment = async (req, res)=>{
  try {
     const userId = req.userId 
-    const postId = req.params.id 
+    const postId = req.params.postId
     const {text} = req.body 
     if(!text){
         return res.status(400).json({
@@ -164,11 +164,11 @@ export const addComment = async (req, res)=>{
 
 export const getCommentByPost = async (req , res)=>{
     try {
-        const postId = req.params.id
+        const postId = req.params.postId
         const post = await Post.findById(postId)
         const comments = await Comment.find({post: postId}).populate({
-            path: "commentedBy" , select: "fullName , profilePicture"
-        })
+            path: "commentedBy" , select: "fullName , profilePicture" 
+        }).populate("post")
          if(!comments){
             return res.status(404).json({
                 message : "No comments found", 
@@ -188,7 +188,7 @@ export const getCommentByPost = async (req , res)=>{
 
 export const deletePost = async (req , res)=>{
     try {
-        const postId = req.params.id
+        const postId = req.params.postId
         const userId = req.userId
         const user = await User.findById(userId)
         const post = await Post.findById(postId)
@@ -223,7 +223,7 @@ export const deletePost = async (req , res)=>{
 
 export const addFavouritePost = async (req, res)=>{
     try {
-        const postId = req.params.id
+        const postId = req.params.postId
         const post = await Post.findById(postId)
         if(!post){
             return res.status(404).json({
