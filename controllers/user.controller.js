@@ -6,53 +6,61 @@ import cloudinary from "../utils/cloudinary.js"
 
 export const register = async (req , res)=>{
     try {
-        const {fullName , email , password , gender} =  req.body 
+        const {fullName , email , password , gender} =  req.body;
+        
         if(!fullName || !email || !password || !gender){
-            return res.status(401).json({
-                message : "Someting is missing" ,
+            return res.status(400).json({
+                message : "Something is missing",
                 success: false
-            })
-        }
-        const existUser = await User.findOne({email})
-        if(existUser){
-            return res.status(401).json({
-                message: "User already exist with this email",
-                success: false
-            })
+            });
         }
         if (password.length < 6) {
             return res.status(400).json({
               message: "Password must be at least 6 characters long",
               success: false,
             });
-          }
-          if (!/[a-zA-Z]/.test(password)) {
+        }
+        if (!/[a-zA-Z]/.test(password)) {
             return res.status(400).json({
               message: "Password must contain at least one letter",
               success: false,
             });
-          }
-          if (!/[0-9]/.test(password)) {
+        }
+        if (!/[0-9]/.test(password)) {
             return res.status(400).json({
               message: "Password must contain at least one number",
               success: false,
             });
-          }
-        const hashPassword = await bcrypt.hash(password , 10)
-           await User.create({
-            fullName ,
-            email ,
-            password: hashPassword ,
+        }
+        const existUser = await User.findOne({email});
+        if(existUser){
+            return res.status(409).json({  
+                message: "User already exists with this email",
+                success: false
+            });
+        }
+        const hashPassword = await bcrypt.hash(password , 10);
+        const newUser = await User.create({
+            fullName,
+            email,
+            password: hashPassword,
             gender
-        })
+        });
+
         return res.status(201).json({
-            message: "Account register succesfully",
+            message: "Account registered successfully",
             success: true
-        })
+        });
     } catch (error) {
-        console.log(error)
+        console.error("Register error:", error.message);
+        res.status(500).json({
+          message: "Internal server error",
+          success: false,
+        });
     }
 }
+
+
 
 export const login = async (req , res)=>{
      try {
@@ -63,7 +71,9 @@ export const login = async (req , res)=>{
                 success: false
             })
         }
-        const user = await User.findOne({email})
+        const user = await User.findOne({email}).populate({path:"posts" , populate: {
+            path: "comments" , select: "fullName profilePicture"
+        }})
         if(!user){
             return res.status(404).json({
                 message: "User not exist with this email",
@@ -78,7 +88,7 @@ export const login = async (req , res)=>{
             })
         }
         const token = jwt.sign({userId : user._id} , process.env.SECRET_KEY , {expiresIn: "7d"})
-        return res.status(200).cookie("token" , token , {maxAge: 7*24*60*60*100 , httpOnly : true , sameSite: "strict"}).json({
+        return res.status(200).cookie("token" , token , {maxAge: 7*24*60*60*1000 , httpOnly : true , sameSite: "strict"}).json({
             message : `Welcome back ${user.fullName}`,
             user ,
             success: true

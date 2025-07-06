@@ -10,15 +10,15 @@ import postRoutes from "./routes/post.route.js"
 import messageRoutes from "./routes/message.route.js"
 
 // connect db
-connectDB()
+
 
 // middlewares
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cors({
-    origin: "http://localhost:5173/",
+    origin: "http://localhost:5173",
     credentials: true
-}))
+  }));
 app.use(cookieParser())
 
 // apis
@@ -28,12 +28,22 @@ app.get("/" , (req , res)=>{
         success: true
     })
 })
+
 app.use("/api/users" , userRoutes)
 app.use("/api/posts" , postRoutes)
 app.use("/api/messages" , messageRoutes)
 
 
 const PORT = process.env.PORT || 6001
-app.listen(PORT , ()=>{
-    console.log(`your server is runnig at http://localhost:${PORT}`) 
-})
+
+const runServer = async ()=>{
+    try {
+       await connectDB()
+         app.listen(PORT , ()=>{
+            console.log(`your server is runnig at http://localhost:${PORT}`) 
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+runServer() 

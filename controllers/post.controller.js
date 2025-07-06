@@ -50,10 +50,10 @@ export const addNewPost = async (req , res)=>{
 
 export const getAllPosts = async (req , res)=>{
     try {
-        const posts = await Post.find().sort({createdAt:-1}).populate({path: "postedBy" , select: "fullName , profilePicture"}).populate({
+        const posts = await Post.find().sort({createdAt:-1}).populate({path: "postedBy" , select: "fullName profilePicture"}).populate({
             path: "comments" , sort:{createdAt: -1}, populate: {
                 path: "commentedBy" ,
-                select: "fullName , profilePicture"
+                select: "fullName profilePicture"
             }
         })
         return res.status(200).json({
@@ -70,10 +70,10 @@ export const getAllPosts = async (req , res)=>{
 export const getUserPosts = async (req , res)=>{
     try {
         const userParamsId = req.params.id
-        const posts = await Post.find({postedBy:userParamsId}).sort({createdAt: -1}).populate({path: "postedBy" , select: "fullName , profilePicture"}).populate({
+        const posts = await Post.find({postedBy:userParamsId}).sort({createdAt: -1}).populate({path: "postedBy" , select: "fullName profilePicture"}).populate({
             path: "comments" , sort:{createdAt: -1}, populate: {
                 path: "commentedBy" ,
-                select: "fullName , profilePicture"
+                select: "fullName profilePicture"
             }
         })
         return res.status(200).json({
@@ -167,7 +167,7 @@ export const getCommentByPost = async (req , res)=>{
         const postId = req.params.postId
         const post = await Post.findById(postId)
         const comments = await Comment.find({post: postId}).populate({
-            path: "commentedBy" , select: "fullName , profilePicture" 
+            path: "commentedBy" , select: "fullName profilePicture" 
         }).populate("post")
          if(!comments){
             return res.status(404).json({

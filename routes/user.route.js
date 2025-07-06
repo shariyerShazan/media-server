@@ -6,14 +6,14 @@ import upload from "../middlewares/multer.js"
 const router = express.Router()
 
 // auth user
-router.post("/register" ,  register)
+router.post("/register" , register)
 router.post("/login" ,  login)
 router.get("/logout" ,isAuthed ,  logout)
 
 // get user
 router.get("/get-profile/:id" , isAuthed, getProfile)
-router.get("/change-password" , isAuthed, changePassword)
-router.patch("/edit-profile" , isAuthed , upload.single("profilePict") , editProfile)
+router.patch("/change-password" , isAuthed, changePassword)
+router.patch("/edit-profile" , isAuthed , upload.single("profilePicture") , editProfile)
 router.get("/other-users" , isAuthed , getOthersUsers)
 router.patch("/follow/:id" , isAuthed , followAndUnfollow)
 
