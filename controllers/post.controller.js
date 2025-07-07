@@ -48,23 +48,47 @@ export const addNewPost = async (req , res)=>{
 
 
 
-export const getAllPosts = async (req , res)=>{
+export const getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find().sort({createdAt:-1}).populate({path: "postedBy" , select: "fullName profilePicture"}).populate({
-            path: "comments" , sort:{createdAt: -1}, populate: {
-                path: "commentedBy" ,
-                select: "fullName profilePicture"
-            }
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+  
+      const posts = await Post.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: "postedBy",
+          select: "fullName profilePicture email"
         })
-        return res.status(200).json({
-            message : "All post" ,
-            posts ,
-            success: true
-        })
+        .populate({
+          path: "comments",
+          options: { sort: { createdAt: -1 } },
+          populate: {
+            path: "commentedBy",
+            select: "fullName profilePicture email"
+          }
+        });
+      const total = await Post.countDocuments();
+  
+      res.status(200).json({
+        success: true,
+        message: "All Posts",
+        posts,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalPosts: total
+      });
     } catch (error) {
-        console.log(error)
+      console.error("Error fetching posts:", error);
+      res.status(500).json({
+        success: false,
+        message: "Server Error"
+      });
     }
-}
+  };
+  
 
 
 export const getUserPosts = async (req , res)=>{
@@ -170,7 +194,7 @@ export const getCommentByPost = async (req , res)=>{
             path: "commentedBy" , select: "fullName profilePicture" 
         }).populate("post")
          if(!comments){
-            return res.status(404).json({
+            return res.status(404).json({ 
                 message : "No comments found", 
                 success: false
             })
