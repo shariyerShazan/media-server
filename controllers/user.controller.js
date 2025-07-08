@@ -255,72 +255,98 @@ export const changePassword = async (req, res)=>{
     }
 }
 
-export const getOthersUsers = async (req , res)=>{
-       try {
-        const userId = req.userId
-        const otherUsers = await User.find({ _id: { $ne: userId } });
-         if(!otherUsers){
-            return res.status(404).json({
-                message : "No user found",
-                success : false
-            })
-         }
-         return res.status(200).json({
-            success : true,
-            otherUsers
-        })
-       } catch (error) {
-        console.log(error)
-       }
-}
-
-
-export const followAndUnfollow = async (req , res)=>{
+export const getOthersUsers = async (req, res) => {
     try {
-        const userId = req.userId 
-        const targetUserId = req.params.id 
-        if(userId === targetUserId){
-            return res.status(400).json({
-                message : "You can't follow yourself",
-                success: false
-            })
-        }
-        const user = await User.findById(userId)
-        const targetUser = await User.findById(targetUserId)
-        if(!user || !targetUser){
-            return res.status(400).json({
-                message : "No user found",
-                success: false
-            })
-        }
+      const userId = req.userId;
+  
+      const otherUsers = await User.find({ _id: { $ne: userId } });
+  
+      if (otherUsers.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No users found except current user.",
+        });
+      }
+  
+      return res.status(200).json({
+        success: true,
+        otherUsers,
+      });
+    } catch (error) {
+      console.error("Error fetching other users:", error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong while fetching users.",
+      });
+    }
+  };
+  
+  
 
-        const isAlreadyFollowed = user.followings.includes(targetUserId)
-        
-    if (isAlreadyFollowed) {
+  export const followAndUnfollow = async (req, res) => {
+    try {
+      const userId = req.userId;
+      const targetUserId = req.params.id;
+  
+      if (userId === targetUserId) {
+        return res.status(400).json({
+          message: "You can't follow yourself",
+          success: false
+        });
+      }
+  
+      const user = await User.findById(userId);
+      const targetUser = await User.findById(targetUserId);
+  
+      if (!user || !targetUser) {
+        return res.status(400).json({
+          message: "No user found",
+          success: false
+        });
+      }
+  
+      const isAlreadyFollowed = user.followings.includes(targetUserId);
+  
+      if (isAlreadyFollowed) {
+        // Unfollow logic
         user.followings.pull(targetUserId);
         targetUser.followers.pull(userId);
   
         await user.save();
         await targetUser.save();
   
+        const updatedUser = await User.findById(userId); 
+  
         return res.status(200).json({
           message: "User unfollowed successfully",
           success: true,
+          updatedUser,              
+          isFollow: false           
         });
       } else {
+        // Follow logic
         user.followings.push(targetUserId);
         targetUser.followers.push(userId);
   
         await user.save();
         await targetUser.save();
   
+        const updatedUser = await User.findById(userId);
+  
         return res.status(200).json({
           message: "User followed successfully",
           success: true,
+          updatedUser,
+          isFollow: true            
         });
       }
-
+  
     } catch (error) {
-        console.log(error)
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error",
+        success: false
+      });
     }
-}
+  };
+  

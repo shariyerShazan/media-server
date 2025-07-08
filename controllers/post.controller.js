@@ -293,13 +293,16 @@ export const addFavouritePost = async (req, res)=>{
         const alreadyFavourite = user.favouritePost.includes(postId)
          if(alreadyFavourite){
           user.favouritePost.pull(postId)
+       
          }else{
              user.favouritePost.push(postId)
          }
          await user.save()
        return res.status(200).json({
         message : alreadyFavourite? "Removed from favourite list" : "Added to favourite list" ,
-        success: true
+        success: true ,
+        user,
+        isFav: alreadyFavourite ? true : false
        })
     } catch (error) {
         console.log(error)
