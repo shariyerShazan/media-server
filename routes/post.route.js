@@ -1,6 +1,6 @@
 import express from "express"
 import { isAuthed } from "../middlewares/isAuthed.js"
-import { addComment, addFavouritePost, addNewPost, deletePost, getAllPosts, getCommentByPost, getFavouritePost, getUserPosts, likeUnlike } from "../controllers/post.controller.js"
+import { addComment, addFavouritePost, addNewPost, deletePost, getAllPosts, getCommentByPost, getFavouritePost, getPostById, getUserPosts, likeUnlike } from "../controllers/post.controller.js"
 import upload from "../middlewares/multer.js"
 
 const router = express.Router()
@@ -14,5 +14,6 @@ router.get("/get-post-comment/:postId" , isAuthed , getCommentByPost)
 router.delete("/delete-post/:postId" , isAuthed , deletePost)
 router.post("/add-favourite/:postId" , isAuthed,addFavouritePost )
 router.get("/get-favourite" , isAuthed , getFavouritePost)
+router.get("/get-postById/:id" , isAuthed , getPostById)
 
 export default router

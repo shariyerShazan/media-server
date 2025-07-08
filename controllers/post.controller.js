@@ -72,7 +72,7 @@ export const getAllPosts = async (req, res) => {
         });
       const total = await Post.countDocuments();
   
-      res.status(200).json({
+     return  res.status(200).json({
         success: true,
         message: "All Posts",
         posts,
@@ -88,6 +88,39 @@ export const getAllPosts = async (req, res) => {
       });
     }
   };
+
+
+  export const getPostById = async (req , res)=>{
+    try {
+     
+    const postId = req.params.id
+        const post = await Post.findById(postId)
+          .populate({
+            path: "postedBy",
+            select: "fullName profilePicture email"
+          })
+          .populate({
+            path: "comments",
+            options: { sort: { createdAt: -1 } },
+            populate: {
+              path: "commentedBy",
+              select: "fullName profilePicture email"
+            }
+          });
+          if(!post){
+            return res.status(404).json({
+                message : "Post not found" ,
+                success: false
+            })
+          }
+       return res.status(200).json({
+          success: true,
+          post,
+        });
+    } catch (error) {
+        console.log(error)
+    }
+  }
   
 
 

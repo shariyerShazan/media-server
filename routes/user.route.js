@@ -17,4 +17,4 @@ router.patch("/edit-profile" , isAuthed , upload.single("profilePicture") , edit
 router.get("/other-users" , isAuthed , getOthersUsers)
 router.patch("/follow/:id" , isAuthed , followAndUnfollow)
 
-export default router;  
+export default router;    

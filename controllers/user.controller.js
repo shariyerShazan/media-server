@@ -71,9 +71,17 @@ export const login = async (req , res)=>{
                 success: false
             })
         }
-        const user = await User.findOne({email}).populate({path:"posts" , populate: {
-            path: "comments" , select: "fullName profilePicture"
-        }})
+        const user = await User.findOne({ email })
+        // .populate({
+        //     path: "posts",
+        //     populate: {
+        //       path: "comments",
+        //       populate: {
+        //         path: "commentedBy",
+        //         select: "fullName profilePicture"
+        //       }
+        //     }
+        //   });          
         if(!user){
             return res.status(404).json({
                 message: "User not exist with this email",
@@ -114,15 +122,40 @@ export const logout = async (req , res)=>{
 export const getProfile = async (req , res)=>{
     try {
         const userId = req.params.id
-        const user = await User.findById(userId).select("-password")
+        const user = await User.findById(userId).select("-password").populate({
+            path: "posts",
+            populate: {
+              path: "comments",
+              populate: {
+                path: "commentedBy",
+                select: "fullName profilePicture"
+              }
+            }
+          })
+          .populate({
+            path : "followers" , select: "fullName , profilePicture"
+          }).populate({
+            path : "followings" , select: "fullName , profilePicture"
+          })
+          .populate({
+            path: "favouritePost",
+            populate: {
+              path: "comments",
+              populate: {
+                path: "commentedBy",
+                select: "fullName profilePicture"
+              }
+            }
+          })
+         
+          
         if(!user){
             return res.status(404).json({
                 message : "User not found",
                 success: false
             })
         }
-        res.status(200).json({
-            message : `User name ${user.fullName}`,
+       return  res.status(200).json({
             user ,
             success: true
         })
@@ -233,7 +266,7 @@ export const getOthersUsers = async (req , res)=>{
             })
          }
          return res.status(200).json({
-            success : false,
+            success : true,
             otherUsers
         })
        } catch (error) {
