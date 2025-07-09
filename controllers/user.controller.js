@@ -133,9 +133,9 @@ export const getProfile = async (req , res)=>{
             }
           })
           .populate({
-            path : "followers" , select: "fullName , profilePicture"
+            path : "followers" , select: "fullName email profilePicture"
           }).populate({
-            path : "followings" , select: "fullName , profilePicture"
+            path : "followings" , select: "fullName email profilePicture"
           })
           .populate({
             path: "favouritePost",
