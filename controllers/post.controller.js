@@ -94,7 +94,7 @@ export const getAllPosts = async (req, res) => {
     try {
      
     const postId = req.params.id
-        const post = await Post.findById(postId)
+        const post = await Post.findById(postId).sort({createdAt:-1})
           .populate({
             path: "postedBy",
             select: "fullName profilePicture email"

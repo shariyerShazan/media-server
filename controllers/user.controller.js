@@ -281,7 +281,6 @@ export const getOthersUsers = async (req, res) => {
     }
   };
   
-  
 
   export const followAndUnfollow = async (req, res) => {
     try {
